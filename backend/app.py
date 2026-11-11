@@ -45,8 +45,8 @@ def health():
     return jsonify({
         "status": "ok",
         "db": db_status,
-        "time": datetime.datetime.utcnow().isoformat()
-    })
+        "time": datetime.datetime.now(datetime.timezone.utc).isoformat()
+})
 
 
 @app.route("/api/notes", methods=["GET"])
@@ -68,19 +68,30 @@ def get_notes():
 
 @app.route("/api/notes", methods=["POST"])
 def create_note():
-    data = request.get_json()
+    data = request.get_json() or {}
+    title = data.get("title")
+    content = data.get("content", "")
+
+    # Validación: si no incluye título, devuelve HTTP 400 Bad Request
+    if not title:
+        return jsonify({"error": "El título es obligatorio"}), 400
+
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id",
-        (data["title"], data.get("content", ""))
+        "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id;",
+        (title, content)
     )
     note_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({"id": note_id, "message": "nota creada"}), 201
 
+    return jsonify({
+        "id": note_id,
+        "title": title,
+        "content": content
+    }), 201
 
 @app.route("/api/notes/<int:note_id>", methods=["DELETE"])
 def delete_note(note_id):
