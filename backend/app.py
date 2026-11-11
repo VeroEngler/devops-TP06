@@ -46,7 +46,7 @@ def health():
         "status": "ok",
         "db": db_status,
         "time": datetime.datetime.now(datetime.timezone.utc).isoformat()
-})
+    })
 
 
 @app.route("/api/notes", methods=["GET"])
@@ -92,6 +92,7 @@ def create_note():
         "title": title,
         "content": content
     }), 201
+
 
 @app.route("/api/notes/<int:note_id>", methods=["DELETE"])
 def delete_note(note_id):
