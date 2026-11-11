@@ -54,7 +54,9 @@ def get_notes():
     conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "SELECT id, title, content, created_at FROM notes ORDER BY created_at DESC")
+        "SELECT id, title, content, created_at "
+        "FROM notes ORDER BY created_at DESC"
+    )
     rows = cur.fetchall()
     cur.close()
     conn.close()
